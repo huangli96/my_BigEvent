@@ -65,7 +65,25 @@
                 });
             } else {
                 $.ajax({
-                    type:''
+                    type: 'post',
+                    url: 'https://autumnfish.cn/big/admin/login',
+                    data: {
+                        user_name: userName,
+                        password: passWord
+                    },
+                    success: function (backData) {
+                        console.log(backData);
+                        if (backData.code == 200) {
+                            window.location.href = "./index.html";
+                        } else {
+                            $('.modal-body').text('用户名或密码错误，请重新输入！');
+                            $('#myModal').modal({
+                                keyboard: true
+                            });
+                        }
+
+                    }
+
                 });
             }
 
