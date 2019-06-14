@@ -67,6 +67,7 @@
 
     <script>
         $(function () {
+            // 显示个人信息
             $.ajax({
                 type: 'get',
                 url: 'http://localhost:8000/admin/userinfo_get',
@@ -77,6 +78,14 @@
                     $('form .user_pic').attr('src', backData.data.user_pic);
                 }
             });
+
+
+            // 本地图片预览
+            $('#exampleInputFile').on('change', function () {
+                var icon = this.files[0];
+                var url = URL.createObjectURL(icon);
+                $('.user_pic').attr('src', url);
+            })
         });
     </script>
 </body>
