@@ -134,14 +134,14 @@
             <td>{{v.slug}}</td>
             <td class="text-center">
                 <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});" class="btn btn-info btn-xs">编辑</a>
-                <a href="javascript:deleteTr( 1 );" class="btn btn-danger btn-xs">删除</a>
+                <a href="javascript:" data-id="{{v.id}}" class="btn btn-danger btn-xs delete">删除</a>
             </td>
         </tr>
         {{/each}}
     </script>
     <script>
         $(function () {
-            // 加载所有文章类别
+            // 加载所有文章类别函数
             function getData() {
                 $.ajax({
                     url: 'http://localhost:8000/admin/category_search',
@@ -158,6 +158,7 @@
             getData();
 
             // 新增分类
+
             $('#model_add').click(function () {
                 var name = $.trim($('input.suname').val());
                 var slug = $.trim($('input.textname').val());
@@ -165,6 +166,7 @@
                     alert('请输入要新增的名称和别名');
                     return;
                 } else {
+
                     $.ajax({
                         type: 'post',
                         url: 'http://localhost:8000/admin/category_add',
@@ -182,6 +184,32 @@
                     })
                 }
                 $('#addModal').modal('hide');
+            });
+
+            // 编辑文章
+            $('tbody').on('click', 'a.btn', function () {
+                var suname1 = $(this).parent().prev().text();
+                var slug1 = $(this).parent().prev().prev().text();
+                $('input.suname').val(suname1);
+                $('input.textname').val(slug1);
+            });
+
+            // 删除文章
+            $('tbody').on('click', 'a.delete', function () {
+                var id = $(this).attr('data-id');
+                var that = $(this);
+                $.ajax({
+                    type: 'post',
+                    url: 'http://localhost:8000/admin/category_delete',
+                    data: {
+                        id: id
+                    },
+                    success: function (backData) {
+                        if (backData.code == 200) {
+                            that.parent().parent().remove();
+                        }
+                    }
+                })
             });
         })
 

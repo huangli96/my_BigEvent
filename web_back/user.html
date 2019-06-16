@@ -88,28 +88,38 @@
                 var icon = this.files[0];
                 var url = URL.createObjectURL(icon);
                 $('.user_pic').attr('src', url);
+            });
+
+
+            // 修改个人信息
+            $('.btn-success').on('click', function (e) {
+                e.preventDefault();
+                var formData = new FormData($('.article_form')[0]);
+                $.ajax({
+                    type: 'post',
+                    url: 'http://localhost:8000/admin/userinfo_edit',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (backData) {
+                        if (backData.code == 200) {
+                            alert('修改成功！');
+                            // 父窗口重新加载
+                            $.ajax({
+                                type: 'get',
+                                url: 'http://localhost:8000/admin/getuser',
+                                success: function (backData) {
+                                    // 获取父页面的元素
+                                    parent.$('.user_info span').html('欢迎&nbsp;&nbsp;' + backData.data.nickname);
+                                    parent.$('.user_info img,#person_right').attr('src', backData.data.user_pic);
+                                }
+                            })
+                        }
+                    }
+                });
             })
         });
 
-
-        // 修改个人信息
-        $('.btn-success').on('click', function (e) {
-            e.preventDefault();
-            var formData = new FormData($('.article_form')[0]);
-            $.ajax({
-                type: 'post',
-                url: 'http://localhost:8000/admin/userinfo_edit',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (backData) {
-                    if (backData.code == 200) {
-                        alert('修改成功！');
-
-                    }
-                }
-            });
-        })
     </script>
 </body>
 
