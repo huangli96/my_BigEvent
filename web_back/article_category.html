@@ -86,17 +86,18 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
-                    <h4 class="modal-title">新增分类</h4>
+                    <h4 id="titleName" class="modal-title">新增分类</h4>
                 </div>
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
+                            <input type="text" id="text_id" style="display: none">
                             <label for="recipient-name" class="control-label">分类名称:</label>
-                            <input type="text" class="form-control suname" id="recipient-name">
+                            <input type="text" class="form-control" id="recipient-name">
                         </div>
                         <div class="form-group">
                             <label for="message-text" class="control-label">分类别名:</label>
-                            <input type="text" class="form-control textname" id="recipient-name">
+                            <input type="text" class="form-control" id="recipient-nickname">
                         </div>
                     </form>
                 </div>
@@ -122,8 +123,7 @@
 
         $('.category_table').delegate('a', 'click', function () {
             if ($(this).hasClass('btn-info')) {
-                $('#addModal .modal-title').html('修改分类名称');
-                $('#addModal').modal('show');
+
             }
         })      
     </script>
@@ -133,8 +133,8 @@
             <td>{{v.name}}</td>
             <td>{{v.slug}}</td>
             <td class="text-center">
-                <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});" class="btn btn-info btn-xs">编辑</a>
-                <a href="javascript:" data-id="{{v.id}}" class="btn btn-danger btn-xs delete">删除</a>
+                <a href="javascript:" data_id="{{v.id}}" id="btn-edit" class="btn btn-info btn-xs">编辑</a>
+                <a href="javascript:" data_id="{{v.id}}" id="btn_delete" class="btn btn-danger btn-xs">删除</a>
             </td>
         </tr>
         {{/each}}
@@ -158,45 +158,80 @@
             getData();
 
             // 新增分类
+            $('a.btn-success').on('click', function () {
+                $('#text_id').val('');
+                $('#recipient-name').val('');
+                $('#recipient-nickname').val('');
+                $('#addModal .modal-title').html('新增分类');
+                $('#model_add').text('新增').removeClass('btn-success');
+            })
 
+
+            // 判断点击的是新增还是保存
             $('#model_add').click(function () {
-                var name = $.trim($('input.suname').val());
-                var slug = $.trim($('input.textname').val());
-                if (name == '' || slug == '') {
-                    alert('请输入要新增的名称和别名');
-                    return;
-                } else {
-
+                var id = $('#text_id').val();
+                var name = $.trim($('#recipient-name').val());
+                var slug = $.trim($('#recipient-nickname').val());
+                // 保存
+                if ($(this).hasClass('btn-success')) {
                     $.ajax({
                         type: 'post',
-                        url: 'http://localhost:8000/admin/category_add',
+                        url: 'http://localhost:8000/admin/category_edit',
                         data: {
+                            id: id,
                             name: name,
                             slug: slug
                         },
                         success: function (backData) {
                             if (backData.code == 200) {
                                 getData();
-                                $('input.suname').val('');
-                                $('input.textname').val('');
                             }
                         }
                     })
+                } else {
+                    if (name == '' || slug == '') {
+                        alert('请输入要新增的名称和别名');
+                        return;
+                    } else {
+                        $.ajax({
+                            type: 'post',
+                            url: 'http://localhost:8000/admin/category_add',
+                            data: {
+                                name: name,
+                                slug: slug
+                            },
+                            success: function (backData) {
+                                if (backData.code == 200) {
+                                    getData();
+                                }
+                            }
+                        })
+                    }
+                    // 隐藏模态框
+                    $('#addModal').modal('hide');
                 }
-                $('#addModal').modal('hide');
             });
 
-            // 编辑文章
-            $('tbody').on('click', 'a.btn', function () {
-                var suname1 = $(this).parent().prev().text();
-                var slug1 = $(this).parent().prev().prev().text();
-                $('input.suname').val(suname1);
-                $('input.textname').val(slug1);
+
+            // 编辑分类
+            $('tbody').on('click', '#btn-edit', function () {
+                var id = $(this).attr('data_id');
+                var name = $(this).parent().prev().prev().text();
+                var slug = $(this).parent().prev().text();
+
+                $('#recipient-name').val(name);
+                $('#recipient-nickname').val(slug);
+                $('#text_id').val(id);
+
+                $('#addModal .modal-title').html('修改分类');
+                $('#model_add').text('保存').addClass('btn-success');
+                $('#addModal').modal('show');
             });
 
-            // 删除文章
-            $('tbody').on('click', 'a.delete', function () {
-                var id = $(this).attr('data-id');
+
+            // 删除分类
+            $('tbody').on('click', '#btn_delete', function () {
+                var id = $(this).attr('data_id');
                 var that = $(this);
                 $.ajax({
                     type: 'post',
@@ -209,7 +244,7 @@
                             that.parent().parent().remove();
                         }
                     }
-                })
+                });
             });
         })
 
