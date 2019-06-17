@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
     <script src="js/jquery-1.12.4.min.js"></script>
+    <script src="./js/jquery.twbsPagination.js"></script>
 </head>
 
 <body>
@@ -305,24 +306,62 @@
             }
         });
 
-        // 点击筛选加载所选的类别
-        $('#btnSearch').on('click', function (e) {
-            e.preventDefault();
+        // 分页
+        var mytotalPage = 10;
+        var $pagination = $('.pagination');
+        var defaultOpts = {
+            totalPages: mytotalPage,
+            visiblePages: 7,
+            first: '首页',
+            prev: '上一页',
+            next: '下一页',
+            last: '尾页',
+            onPageClick: function (event, page) {
+                getPage(page);
+            }
+        };
+        $pagination.twbsPagination(defaultOpts);
+
+
+        // 加载所选的类别函数
+        function getPage(mypage) {
             var type = $('#selCategory').val();
             var state = $('#selStatus').val();
 
             $.ajax({
                 url: 'http://localhost:8000/admin/search',
                 data: {
+                    key: '',
                     type: type,
-                    state: state
+                    state: state,
+                    page: mypage,
+                    perpage: 6
                 },
                 success: function (backData) {
                     var resHtml2 = template('tem_res', backData)
                     $('tbody').html(resHtml2);
+
+                    var totalPages = backData.totalPage;
+                    if (mytotalPage != totalPages) {
+                        mytotalPage = totalPages;
+                        var currentPage = 1;
+                        $pagination.twbsPagination('destroy');
+                        $pagination.twbsPagination($.extend({}, defaultOpts, {
+                            startPage: currentPage,
+                            totalPages: totalPages
+                        }));
+                    }
+
                 }
             })
+        }
+
+        // 点击筛选按钮
+        $('#btnSearch').on('click', function (e) {
+            e.preventDefault();
+            getPage(1);
         });
+
 
         // 删除文章
         $('tbody').on('click', '#btn_del', function () {
