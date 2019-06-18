@@ -33,14 +33,14 @@
                 <div class="form-group">
                     <label for="inputPassword3" class="col-sm-2 control-label">文章封面：</label>
                     <div class="col-sm-10">
-                        <img src="images/pic06.jpg" class="article_cover">
+                        <img src="images/pic06.jpg" class="article_cover" id="imgid">
                         <input type="file" id="exampleInputFile">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
-                        <select class="form-control">
+                        <select class="form-control" id="restem">
                             <option>类别一</option>
                             <option>类别二</option>
                             <option>类别三</option>
@@ -66,7 +66,8 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="rich_content" name="content" placeholder="文章内容" value="文章内容">
+                        <input type="text" class="form-control" id="rich_content" name="content" placeholder="文章内容"
+                            value="文章内容">
                     </div>
                 </div>
                 <div class="form-group">
@@ -78,6 +79,42 @@
         </div>
     </div>
 
+    <script src="./js/template-web.js"></script>
+    <script id="tep" type="text/html">
+        {{each data v}}
+                <option value="{{v.id}}">{{v.name}}</option>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+
+            $.ajax({
+                url: 'http://localhost:8000/admin/category_search',
+                success: function (backData) {
+                    console.log(backData);
+                    var resHtml = template('tep', backData);
+                    $('#restem').html(resHtml);
+                }
+            })
+
+            var id = window.location.search.split('=')[1];
+            $.ajax({
+                url: 'http://localhost:8000/admin/search',
+                data: {
+                    id: id
+                },
+                success: function (backData) {
+                    console.log(backData);
+                    $('#inputEmail3').val(backData.data.title);
+                    $('#imgid').attr('src', backData.data.cover);
+                    $('#dateinput').val(backData.data.date);
+                    $('#restem option[value=' + backData.data.type + ']').attr('selected', true);
+
+                }
+            })
+
+        })
+    </script>
 </body>
 
 </html>

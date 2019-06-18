@@ -285,8 +285,8 @@
         <td class="text-center">{{v.date}}</td>
         <td class="text-center">{{v.state}}</td>
         <td class="text-center">
-            <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
-            <a href="javascript:" data_id="{{v.id}}" id="btn_del" class="btn btn-danger btn-xs">删除</a>
+            <a href="article_edit.html?id={{v.id}}" class="btn btn-default btn-xs btn_add">编辑</a>
+            <a href="javascript:" data_id="{{v.id}}" class="btn btn-danger btn-xs btn_del">删除</a>
         </td>
     </tr>
     {{/each}}
@@ -338,6 +338,7 @@
                     perpage: 6
                 },
                 success: function (backData) {
+
                     var resHtml2 = template('tem_res', backData)
                     $('tbody').html(resHtml2);
 
@@ -364,7 +365,7 @@
 
 
         // 删除文章
-        $('tbody').on('click', '#btn_del', function () {
+        $('tbody').on('click', '.btn_del', function () {
             var that = $(this);
             var id = $(this).attr('data_id');
 
@@ -375,7 +376,7 @@
                 },
                 success: function (backData) {
                     if (backData.code == 200) {
-                        that.parent().parent().remove();
+                        getPage(1);
                     }
                 }
             })
